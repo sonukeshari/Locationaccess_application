@@ -41,8 +41,8 @@ class _LocationPageState extends State<LocationPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Latitude : ${nowPosition?.latitude ?? ""}'),
-              Text('Longitude : ${nowPosition?.longitude ?? ""}'),
+              Text('Latitude: ${nowPosition?.latitude ?? ""}'),
+              Text('Longitude: ${nowPosition?.longitude ?? ""}'),
               const SizedBox(height: 32),
               ElevatedButton(
                 onPressed: _getCurrentPosition,
@@ -56,20 +56,24 @@ class _LocationPageState extends State<LocationPage> {
   }
 
   Future<void> _getCurrentPosition() async {
-    // print('Fetching current position...');
+    print('Fetching current position...');
     final hasPermission = await _handleLocationPermission();
-    if (!hasPermission) return;
+    if (!hasPermission) {
+      print("Permission denied");
+      return;
+    }
 
-    await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-      forceAndroidLocationManager:
-          true, // Try removing this line and see if it makes a difference
-    ).then((Position position) {
-      // print('Position fetched: $position');
+    try {
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        // Remove this line and see if it makes a difference
+        // forceAndroidLocationManager: true,
+      );
+      print('Position fetched: $position');
       setState(() => nowPosition = position);
-    }).catchError((e) {
+    } catch (e) {
       print('Error fetching location: $e');
-    });
+    }
   }
 
   Future<bool> _handleLocationPermission() async {
